@@ -1,3 +1,2 @@
-# Default install (Railway Railpack, pip, CI): production API only.
-# Optional dev stack: pip install -r requirements-dev.txt
+# Default API dependencies (local or CI). Optional full dev: pip install -r requirements-dev.txt
 -r requirements-prod.txt

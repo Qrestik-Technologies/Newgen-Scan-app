@@ -1,4 +1,4 @@
-# Full local / optional tooling (black, pytest, litellm, …). Not used on Railway.
+# Optional local tooling (black, pytest, litellm, …). Not required to run the API.
 # Install: pip install -r requirements-dev.txt
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.3

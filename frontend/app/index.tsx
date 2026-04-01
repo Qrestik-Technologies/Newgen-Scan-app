@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,31 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
 
-const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
+const DEFAULT_API_BASE = 'http://127.0.0.1:8000';
+
+function getApiBase(): string {
+  const raw = process.env.EXPO_PUBLIC_BACKEND_URL;
+  if (raw && String(raw).trim()) return String(raw).replace(/\/$/, '');
+  return DEFAULT_API_BASE;
+}
+
+const API_REQUEST_TIMEOUT_MS = 15_000;
+
+function statsLoadErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    if (error.code === 'ECONNABORTED') {
+      return `Request timed out after ${API_REQUEST_TIMEOUT_MS / 1000}s. Is the backend running?`;
+    }
+    if (error.response) {
+      return `Server error HTTP ${error.response.status}`;
+    }
+    if (error.request) {
+      return 'No response from server (check URL and that uvicorn is running).';
+    }
+  }
+  if (error instanceof Error) return error.message;
+  return 'Could not load dashboard data.';
+}
 
 interface Stats {
   total_patients: number;
@@ -54,13 +78,24 @@ export default function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const hadStatsRef = useRef(false);
+
+  const apiBase = getApiBase();
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/stats`);
+      setLoadError(null);
+      const response = await axios.get(`${apiBase}/api/stats`, {
+        timeout: API_REQUEST_TIMEOUT_MS,
+      });
+      hadStatsRef.current = true;
       setStats(response.data);
     } catch (error) {
       console.error('Error fetching stats:', error);
+      if (!hadStatsRef.current) {
+        setLoadError(statsLoadErrorMessage(error));
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -76,11 +111,35 @@ export default function Dashboard() {
     fetchStats();
   };
 
+  const onRetry = () => {
+    setLoading(true);
+    setLoadError(null);
+    fetchStats();
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#1a5f7a" />
         <Text style={styles.loadingText}>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (stats === null && loadError) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <Ionicons name="cloud-offline-outline" size={48} color="#c0392b" />
+        <Text style={styles.errorTitle}>Cannot reach clinic API</Text>
+        <Text style={styles.errorDetail}>{loadError}</Text>
+        <Text style={styles.errorHint}>Trying: {apiBase}</Text>
+        <Text style={styles.errorHint}>
+          Start backend from the project: cd backend → uvicorn server:app --reload --host 0.0.0.0
+          --port 8000
+        </Text>
+        <TouchableOpacity style={styles.retryButton} onPress={onRetry} activeOpacity={0.8}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
       </SafeAreaView>
     );
   }
@@ -290,6 +349,42 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: '#666',
+  },
+  errorTitle: {
+    marginTop: 16,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+    paddingHorizontal: 24,
+  },
+  errorDetail: {
+    marginTop: 10,
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    paddingHorizontal: 28,
+    lineHeight: 20,
+  },
+  errorHint: {
+    marginTop: 12,
+    fontSize: 12,
+    color: '#888',
+    textAlign: 'center',
+    paddingHorizontal: 28,
+    lineHeight: 18,
+  },
+  retryButton: {
+    marginTop: 24,
+    backgroundColor: '#1a5f7a',
+    paddingHorizontal: 28,
+    paddingVertical: 14,
+    borderRadius: 12,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   scrollContent: {
     flexGrow: 1,

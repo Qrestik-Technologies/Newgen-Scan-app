@@ -1,5 +1,5 @@
-# Minimal deps for FastAPI + Postgres + OCR + OpenAI (Docker / Railway).
-# Full list: requirements.txt (local / dev only).
+# Minimal deps for FastAPI + Postgres + OCR + OpenAI.
+# Main requirements.txt includes this file. Full optional stack: requirements-dev.txt
 
 fastapi>=0.110,<0.117
 uvicorn[standard]>=0.25,<0.36
