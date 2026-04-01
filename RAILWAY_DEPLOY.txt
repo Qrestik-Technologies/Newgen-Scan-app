@@ -1,0 +1,21 @@
+Railway deploy checklist (read if build logs show: COPY backend/requirements.txt or emergentintegrations)
+
+1) Open: https://github.com/Qrestik-Technologies/Newgen-Scan-app/blob/main/Dockerfile
+   The live file MUST show: COPY backend/requirements-prod.txt (NOT COPY backend/requirements.txt).
+
+2) Railway → your API service → Settings → Source
+   - Repository: Qrestik-Technologies/Newgen-Scan-app
+   - Branch: main
+   - Redeploy and note the commit SHA; it must match the latest on GitHub main.
+
+3) Railway → Settings → Build
+   - Root Directory: leave EMPTY (repo root), not "backend", unless you know backend-only deploy.
+   - Builder: Dockerfile (not Railpack / Nixpacks only).
+   - Dockerfile path: Dockerfile.api  (or Dockerfile — both use requirements-prod only)
+   - Remove any "Custom Dockerfile" / pasted Dockerfile from the dashboard.
+
+4) Redeploy with "Clear build cache" if Railway offers it.
+
+5) Build log sanity check:
+   - Good: requirements-prod.txt, pip install -r requirements-prod.txt
+   - Bad: COPY backend/requirements.txt then pip install (wrong/cached service config)
