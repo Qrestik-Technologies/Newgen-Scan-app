@@ -1,3 +1,4 @@
+# For Railway / Docker use requirements-prod.txt (this file is bloated; local tooling may still use it).
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.3
 aiosignal==1.4.0
