@@ -1,0 +1,16 @@
+# Slimmer, faster Docker builds (context = repo root)
+frontend
+.git
+.github
+.cursor
+**/__pycache__
+**/*.pyc
+**/.venv
+**/.env
+backend/.env
+backend/uploads
+**/node_modules
+**/.expo
+**/.metro-cache
+*.md
+!backend/.env.example
