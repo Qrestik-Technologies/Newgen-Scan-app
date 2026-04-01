@@ -1,5 +1,5 @@
-# Monorepo root: builds FastAPI backend only (Tesseract + uvicorn).
-# Railway: connect repo and deploy this service; add Variables (see backend/.env.example).
+# Monorepo root: FastAPI + Tesseract. pip uses ONLY requirements-prod.txt.
+# If logs show COPY backend/requirements.txt, clear Railway build cache or wrong Git revision.
 FROM python:3.12-slim-bookworm
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY backend/requirements-prod.txt ./requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+COPY backend/requirements-prod.txt requirements-prod.txt
+RUN pip install --no-cache-dir -r requirements-prod.txt
 
 COPY backend/ .
 
