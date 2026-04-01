@@ -1,0 +1,102 @@
+{
+  "summary": {
+    "passed": 13,
+    "failed": 0,
+    "total": 13,
+    "success_rate": 100.0
+  },
+  "tests": [
+    {
+      "test": "Health Check",
+      "success": true,
+      "details": "Status: healthy",
+      "timestamp": "2026-03-28T12:08:46.866734",
+      "response_data": null
+    },
+    {
+      "test": "Dashboard Stats",
+      "success": true,
+      "details": "Patients: 0, Visits: 0",
+      "timestamp": "2026-03-28T12:08:47.420257",
+      "response_data": null
+    },
+    {
+      "test": "Create Patient",
+      "success": true,
+      "details": "Created patient ID: bc73a520-7064-4311-b643-0e0a9d51c86d",
+      "timestamp": "2026-03-28T12:08:47.976253",
+      "response_data": null
+    },
+    {
+      "test": "List Patients",
+      "success": true,
+      "details": "Found 1 patients",
+      "timestamp": "2026-03-28T12:08:48.524650",
+      "response_data": null
+    },
+    {
+      "test": "Get Patient by ID",
+      "success": true,
+      "details": "Retrieved patient: Dr. Sarah Johnson",
+      "timestamp": "2026-03-28T12:08:49.069752",
+      "response_data": null
+    },
+    {
+      "test": "Create Visit",
+      "success": true,
+      "details": "Created visit ID: ebfe544c-53b2-4a91-b631-f4415739ed30",
+      "timestamp": "2026-03-28T12:08:49.624949",
+      "response_data": null
+    },
+    {
+      "test": "List Visits",
+      "success": true,
+      "details": "Found 1 visits",
+      "timestamp": "2026-03-28T12:08:50.166124",
+      "response_data": null
+    },
+    {
+      "test": "Get Visit by ID",
+      "success": true,
+      "details": "Retrieved visit for patient: bc73a520-7064-4311-b643-0e0a9d51c86d",
+      "timestamp": "2026-03-28T12:08:50.710184",
+      "response_data": null
+    },
+    {
+      "test": "Get Visits by Patient",
+      "success": true,
+      "details": "Found 1 visits for patient",
+      "timestamp": "2026-03-28T12:08:51.255243",
+      "response_data": null
+    },
+    {
+      "test": "Power BI Data Export",
+      "success": true,
+      "details": "Exported 1 patients, 1 visits",
+      "timestamp": "2026-03-28T12:08:51.798041",
+      "response_data": null
+    },
+    {
+      "test": "Update Patient",
+      "success": true,
+      "details": "Updated patient: Dr. Sarah Johnson-Smith",
+      "timestamp": "2026-03-28T12:08:52.352917",
+      "response_data": null
+    },
+    {
+      "test": "Delete Visit",
+      "success": true,
+      "details": "Deleted visit: ebfe544c-53b2-4a91-b631-f4415739ed30",
+      "timestamp": "2026-03-28T12:08:52.896468",
+      "response_data": null
+    },
+    {
+      "test": "Delete Patient",
+      "success": true,
+      "details": "Deleted patient: bc73a520-7064-4311-b643-0e0a9d51c86d",
+      "timestamp": "2026-03-28T12:08:53.442217",
+      "response_data": null
+    }
+  ],
+  "timestamp": "2026-03-28T12:08:53.942518"
+}
