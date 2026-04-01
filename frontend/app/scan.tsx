@@ -93,6 +93,7 @@ export default function ScanScreen() {
           structuredData: JSON.stringify(response.data.structured_data),
           confidence: response.data.confidence.toString(),
           imageBase64: image,
+          extractionMode: response.data.extraction_mode ?? '',
         },
       });
     } catch (error: any) {

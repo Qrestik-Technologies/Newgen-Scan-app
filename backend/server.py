@@ -108,6 +108,7 @@ class ScanResult(BaseModel):
     raw_text: str
     structured_data: dict
     confidence: float
+    extraction_mode: Optional[str] = None  # "openai_vision" | "tesseract"
 
 
 class PowerBIData(BaseModel):
@@ -208,9 +209,9 @@ Columns (left → right), exactly 7 cells per patient row:
 2. PATIENTS NAME — full handwritten name; never leave blank if any name-shaped text appears in that column for this row.
 3. AGE/SEX — pattern like 7/M, 43/F, 22/F; "" only if that cell is truly empty.
 4. MOBILE NUMBER — Indian 10-digit mobile, digits only in output (no spaces). Trace grid: a long number belongs here, not in NAME.
-5. DOCTOR NAME — includes "Dr." and surname; may wrap (e.g. Dr. Suresh Paulraj).
-6. TIMING — e.g. 6:30 PM, 07:00 PM, 8:00 PM; "" if blank.
-7. REMARKS — short notes (e.g. X-ray, DONE); "" if blank.
+5. DOCTOR NAME — includes "Dr." and surname. Often the sheet has a specialty in parentheses above or before the doctor, e.g. "(Psyc) Dr. Srithi", "(Surgeon) Dr. Sandeep", "(Ortho) Dr. Gracelin" — put that entire visible doctor cell as ONE string (specialty + Dr. line).
+6. TIMING — e.g. 6:30 PM, 4.30pm, 01.00pm, 8.30pm; normalize to a readable form; "" if blank.
+7. REMARKS — short notes (e.g. Done, IP Patient -> Done); "" if blank.
 
 Critical rules:
 - Follow the printed vertical rules: align each ink stroke with its column. If handwriting drifts, still assign values to the intended column by position.
@@ -366,7 +367,8 @@ def export_to_xlsx_bytes(payload: dict[str, Any]) -> bytes:
     ws.title = "Extract"
     ws.append(
         [
-            "No table rows extracted — raw OCR (retake straighter / brighter, or set EMERGENT_LLM_KEY)"
+            "No table rows extracted — raw OCR. For structured columns: set OPENAI_API_KEY in backend/.env "
+            "(Vision), use a straighter/brighter photo, or try TESSERACT_PSM=4 or 11 in .env."
         ]
     )
     bold = Font(bold=True)
@@ -842,7 +844,8 @@ def scan_result_confidence(structured_data: dict) -> float:
 
 async def scan_from_image_data(image_data: bytes) -> ScanResult:
     """Use OpenAI Vision for the appointment table when OPENAI_API_KEY is set; else Tesseract."""
-    if os.environ.get("OPENAI_API_KEY", "").strip():
+    openai_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if openai_key:
         try:
             plain, table = await extract_appointment_openai_vision(image_data)
             rows = table.get("rows") if isinstance(table.get("rows"), list) else []
@@ -855,10 +858,16 @@ async def scan_from_image_data(image_data: bytes) -> ScanResult:
                     raw_text=raw_text,
                     structured_data=legacy,
                     confidence=confidence,
+                    extraction_mode="openai_vision",
                 )
             logger.info("OpenAI vision returned no rows; falling back to Tesseract")
         except Exception as e:
             logger.warning("OpenAI vision table extraction failed: %s", e)
+    else:
+        logger.warning(
+            "OPENAI_API_KEY is not set in backend/.env — using Tesseract only; "
+            "handwritten appointment rows will usually miss. Add your key (no quotes) and restart the API."
+        )
 
     raw_text = await extract_text_from_image(image_data)
     if not raw_text.strip():
@@ -866,12 +875,14 @@ async def scan_from_image_data(image_data: bytes) -> ScanResult:
             raw_text="",
             structured_data=empty_scan_structured(),
             confidence=0.0,
+            extraction_mode="tesseract",
         )
     structured_data = await structure_scan_document(raw_text)
     return ScanResult(
         raw_text=raw_text,
         structured_data=structured_data,
         confidence=scan_result_confidence(structured_data),
+        extraction_mode="tesseract",
     )
 
 

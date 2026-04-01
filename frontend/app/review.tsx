@@ -75,6 +75,7 @@ export default function ReviewScreen() {
   const rawText = (params.rawText as string) || '';
   const confidence = parseFloat((params.confidence as string) || '0');
   const imageBase64 = (params.imageBase64 as string) || '';
+  const extractionMode = (params.extractionMode as string) || '';
 
   const structuredPayload = useMemo(
     () => parseStructuredPayload(params.structuredData as string | undefined),
@@ -238,6 +239,19 @@ export default function ReviewScreen() {
             details captured from the image.
           </Text>
         </View>
+
+        {extractionMode === 'tesseract' ? (
+          <View style={styles.visionHintCard}>
+            <Ionicons name="key-outline" size={22} color="#8e44ad" />
+            <Text style={styles.visionHintText}>
+              This scan used <Text style={styles.visionHintBold}>OCR only</Text> (no OpenAI Vision).
+              Handwritten appointment sheets usually need a real API key: set{' '}
+              <Text style={styles.visionHintMono}>OPENAI_API_KEY</Text> in{' '}
+              <Text style={styles.visionHintMono}>backend/.env</Text>, then restart the backend and scan
+              again for proper rows and exports.
+            </Text>
+          </View>
+        ) : null}
 
         <View style={styles.profilePreviewCard}>
           <Text style={styles.profilePreviewTitle}>Patient profiles from this scan</Text>
@@ -403,6 +417,32 @@ const styles = StyleSheet.create({
     color: '#999',
     marginTop: 4,
     lineHeight: 18,
+  },
+  visionHintCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    backgroundColor: '#f5eef8',
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#d7bde2',
+  },
+  visionHintText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#4a235a',
+    lineHeight: 20,
+  },
+  visionHintBold: {
+    fontWeight: '700',
+    color: '#6c3483',
+  },
+  visionHintMono: {
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    fontSize: 12,
+    color: '#512e5f',
   },
   profilePreviewCard: {
     backgroundColor: '#e8f4fc',
