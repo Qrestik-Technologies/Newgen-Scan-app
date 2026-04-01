@@ -1,0 +1,4 @@
+# Use root Dockerfile (backend + Tesseract). Do not use Railpack/Nixpacks on this monorepo.
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
