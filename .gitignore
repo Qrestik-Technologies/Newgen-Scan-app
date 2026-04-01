@@ -87,6 +87,7 @@ android-sdk/
 *.env
 !.env.example
 frontend/.env.*
+!frontend/.env.example
 
 # Uploaded visit images (local only)
 backend/uploads/
